@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\IMGUI">
+      <UniqueIdentifier>{d254ac9a-cf91-4951-b98c-4138a9f39f14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\COMPORT">
+      <UniqueIdentifier>{f15a9db4-756e-4ba0-8101-a9fec7c3a310}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\COMPORTSource">
+      <UniqueIdentifier>{3c501cb7-a9c6-4409-91a0-ec61f8126ea0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IMGUISource">
+      <UniqueIdentifier>{69fb4fb2-6caf-4330-9e89-7b24d199c0bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GUI">
+      <UniqueIdentifier>{e92ba328-b581-4498-97bc-a93ab79884cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GUISource">
+      <UniqueIdentifier>{cb858504-5307-4bd0-a4d0-251f9b87ecdd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\PCB">
+      <UniqueIdentifier>{017a2ddd-ac23-4ae1-8d2c-37dd723eaddf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\PCBSource">
+      <UniqueIdentifier>{b514d557-661b-466c-9aca-662408475f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\SETTINGS">
+      <UniqueIdentifier>{0e897132-fb63-4e6e-bf3d-12c5f511d735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SETTINGSource">
+      <UniqueIdentifier>{6958d104-a73d-4827-b3ed-d083edbeb315}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ARSettingsApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComPortSource.cpp">
+      <Filter>Source Files\COMPORTSource</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui.cpp">
+      <Filter>Source Files\GUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_demo.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_draw.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_glut.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_impl_opengl2.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_stdlib.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_tables.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="IMGUI\imgui_widgets.cpp">
+      <Filter>Source Files\IMGUISource</Filter>
+    </ClCompile>
+    <ClCompile Include="SetARAppSettingsSource.cpp">
+      <Filter>Source Files\SETTINGSource</Filter>
+    </ClCompile>
+    <ClCompile Include="SetESPSettingsSource.cpp">
+      <Filter>Source Files\SETTINGSource</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IMGUI\imconfig.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_glut.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_impl_opengl2.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_internal.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imgui_stdlib.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_rectpack.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_textedit.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="IMGUI\imstb_truetype.h">
+      <Filter>Header Files\IMGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\GUI.h">
+      <Filter>Header Files\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\ComPortHandler.h">
+      <Filter>Header Files\COMPORT</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\SetARAppSettings.h">
+      <Filter>Header Files\SETTINGS</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\SetESPSettings.h">
+      <Filter>Header Files\SETTINGS</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
