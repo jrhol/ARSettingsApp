@@ -290,7 +290,10 @@ void runSettingsWindow()
 		if (virtual_only_simulation)
 		{
 			if (ImGui::Button("Write Settings for AR Application")) {
-				//swriteSettingsToFile(); //Writing AR Settings
+				if (!writeSettingsToFile("This is an example path for now", virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Writing AR Settings
+				{
+					throw std::invalid_argument("Failed to write settings to file");
+				}
 			}
 		}
 		else {
@@ -301,8 +304,15 @@ void runSettingsWindow()
 				}
 				else
 				{
-					//writeSettingsToESP32(); //Write settings to ESP32
-					//writeSettingsToFile(); // Write Settings to file for AR
+					if (!writeSettingsToESP32(comPortList[selectedComPortIndex].c_str(), virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Write settings to ESP32
+					{
+						MessageBox(NULL, L"Could not write data to ESP32, please try again", L"Warning", MB_OK | MB_ICONWARNING); //Alert when writing to ESP failed
+					}
+
+					if (!writeSettingsToFile("This is an example path for now", virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Writing AR Settings
+					{
+						throw std::invalid_argument("Failed to write settings to file"); //Throwing exception here as likely to be more severe bug if cannot write to file
+					}
 				}
 			}
 		}

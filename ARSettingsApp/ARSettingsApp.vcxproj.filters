@@ -51,7 +51,7 @@
     <ClCompile Include="ComPortSource.cpp">
       <Filter>Source Files\COMPORTSource</Filter>
     </ClCompile>
-    <ClCompile Include="Gui.cpp">
+    <ClCompile Include="GUI.cpp">
       <Filter>Source Files\GUISource</Filter>
     </ClCompile>
     <ClCompile Include="IMGUI\imgui.cpp">

@@ -17,7 +17,6 @@
 #include "IMGUI/imgui_stdlib.h"
 
 #include <GL/glut.h>
-#include <GL/freeglut.h>
 #include <Windows.h> //For System Handling
 
 

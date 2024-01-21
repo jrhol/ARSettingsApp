@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClCompile Include="ARSettingsApp.cpp" />
     <ClCompile Include="ComPortSource.cpp" />
-    <ClCompile Include="Gui.cpp" />
+    <ClCompile Include="GUI.cpp" />
     <ClCompile Include="IMGUI\imgui.cpp" />
     <ClCompile Include="IMGUI\imgui_demo.cpp" />
     <ClCompile Include="IMGUI\imgui_draw.cpp" />
