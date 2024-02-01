@@ -4,7 +4,8 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include "Settings.h"
 
-bool writeSettingsToFile(std::string PCBFilePath, bool virtual_only_simulation, float inputVoltage, int selectedTestPoint, int selectedWaveForm, double simulationTime, double timeStep, double startTime, double endTime); //Pass the location of the PCB in here and write to file - used by ar app
+bool writeSettingsToFile(std::string settingsFilePath, settings& settingsToWrite); //Pass the location of the PCB in here and write to file - used by ar app
 
 #endif // !SetAR_def

@@ -1,6 +1,5 @@
 #include "Headers/GUI.h"
 
-
 //********************************************************//
 //						VARIABLES
 //********************************************************//
@@ -11,6 +10,8 @@ static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 static bool virtual_only_simulation = false;
 
 static bool ESP_connected = false;
+
+static bool PCB_FileLoaded = false; //TODO: Implement Checking
 
 float inputVoltage = 0.0f;
 int selectedTestPoint = 0; // Index of the selected TestPoint
@@ -28,7 +29,7 @@ double timeStep = 0.01f;  // Default time step
 double startTime = 0.0f;
 double endTime = 10.0f;
 
-//Com port parameters
+//COM port parameters
 int selectedComPortIndex = 0; // Initialize with the first COM port
 std::vector<std::string> comPortList; //List of available Com ports
 
@@ -36,6 +37,8 @@ std::vector<std::string> comPortList; //List of available Com ports
 const char* testPoints[] = { "TP1", "TP2", "TP3" };
 
 PCBDisplaySetting pcbSettings; //List of PCB layers and if they should be displayed
+
+settings setSettings;
 
 
 //********************************************************//
@@ -53,6 +56,9 @@ void populateLayerOptions() {
 		std::string demolayer = "Layer " + std::to_string(i);
 		pcbSettings.LayerControl.push_back({ demolayer , true });
 	}
+
+	//TODO:FILE READING GOES HERE
+
 }
 
 
@@ -231,6 +237,8 @@ void runSettingsWindow()
 			endTime = std::max(startTime, endTime);  // Ensure End Time is not less than Start Time
 		}
 
+
+
 		//Debugging
 		//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 
@@ -243,8 +251,9 @@ void runSettingsWindow()
 
 		// File selector for PCB file
 		ImGui::Text("PCB File:");
-		//ImGui::InputText("##PCBFile", &pcbSettings.pcbFilePath);
+
 		ImGui::SameLine();
+
 		if (ImGui::Button("Browse...")) {
 			// Implement your file selection logic here
 			// You can use external libraries like ImGuiFileDialog for file selection
@@ -252,14 +261,13 @@ void runSettingsWindow()
 
 			// Code for Option 1
 			OPENFILENAME ofn;
-			TCHAR szFileName[MAX_PATH] = { 0 };
-
+			TCHAR szFilePCBPath[MAX_PATH] = { 0 };
 			// Initialize OPENFILENAME
 			ZeroMemory(&ofn, sizeof(ofn));
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = NULL;
-			ofn.lpstrFile = szFileName;
-			ofn.nMaxFile = sizeof(szFileName);
+			ofn.lpstrFile = szFilePCBPath;
+			ofn.nMaxFile = sizeof(szFilePCBPath);
 			ofn.lpstrFilter = L"KiCad PCB Files (*.kicad_pcb)\0*.kicad_pcb\0"; //Filter to Kicad PCB files only
 			ofn.nFilterIndex = 1;
 			ofn.lpstrFileTitle = NULL;
@@ -271,7 +279,25 @@ void runSettingsWindow()
 			{
 				// The user selected a file, and the file path is in szFileName
 				// You can use szFileName for further processing
-				MessageBox(NULL, szFileName, L"File Selected", MB_OK);
+				MessageBox(NULL, szFilePCBPath, L"File Selected", MB_OK);
+
+
+				//Converting Tchar to Char 
+				// Calculate the size of the buffer needed
+				int charCount = WideCharToMultiByte(CP_UTF8, 0, szFilePCBPath, -1, NULL, 0, NULL, NULL);
+
+				// Allocate a buffer for the converted string
+				char* charFilePath = new char[charCount];
+
+				// Perform the conversion
+				WideCharToMultiByte(CP_UTF8, 0, szFilePCBPath, -1, charFilePath, charCount, NULL, NULL);
+
+				setSettings.setPCBFilePath(charFilePath); //Store file path in settings object
+				PCB_FileLoaded = true;
+
+				// Now you can use charFilePath for further processing or saving data to the selected file
+				// Don't forget to delete[] charFilePath when done using it to avoid memory leaks
+				delete[] charFilePath;
 			}
 		}
 
@@ -286,32 +312,99 @@ void runSettingsWindow()
 	}
 
 	{
+
 		ImGui::Begin("Write Settings");
 		if (virtual_only_simulation)
 		{
+			populateSettings();
+
 			if (ImGui::Button("Write Settings for AR Application")) {
-				if (!writeSettingsToFile("This is an example path for now", virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Writing AR Settings
-				{
-					throw std::invalid_argument("Failed to write settings to file");
+				if (PCB_FileLoaded == false) {
+					MessageBox(NULL, L"Load a PCB File before attempting to Write Settings", L"Warning", MB_OK | MB_ICONWARNING); //Alert trying to write to ESP when not connected
+				}
+				else {
+					// Code for Saving File
+					OPENFILENAME ofn;
+					TCHAR szFileSettingsFilePath[MAX_PATH] = { 0 };
+
+					// Initialize OPENFILENAME
+					ZeroMemory(&ofn, sizeof(ofn));
+					ofn.lStructSize = sizeof(ofn);
+					ofn.hwndOwner = NULL;
+					ofn.lpstrFile = szFileSettingsFilePath;
+					ofn.nMaxFile = sizeof(szFileSettingsFilePath);
+					ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0"; // Filter to .txt files only
+					ofn.nFilterIndex = 1;
+					ofn.lpstrFileTitle = NULL;
+					ofn.nMaxFileTitle = 0;
+					ofn.lpstrInitialDir = NULL;
+					ofn.Flags = OFN_OVERWRITEPROMPT; // Use OFN_OVERWRITEPROMPT for save dialog
+
+					if (GetSaveFileName(&ofn) == TRUE)
+					{
+						// Ensure the file has a .txt extension
+						size_t fileNameLength = wcslen(szFileSettingsFilePath);
+
+						// Check if the filename already has an extension
+						if (fileNameLength == 0 || (szFileSettingsFilePath[fileNameLength - 1] != L'.' && _wcsicmp(szFileSettingsFilePath + fileNameLength - 4, L".txt") != 0))
+						{
+							// If the filename doesn't have an extension or has an extension other than .txt, add .txt
+							wcscat_s(szFileSettingsFilePath, _countof(szFileSettingsFilePath), L".txt");
+						}
+
+						// The user selected a file or entered a new filename,
+						// and the file path is in szFileName
+						// You can use szFileName for further processing
+						MessageBox(NULL, szFileSettingsFilePath, L"File Selected", MB_OK);
+
+
+						// Converting Tchar to Char
+						// Calculate the size of the buffer needed
+						int charCount = WideCharToMultiByte(CP_UTF8, 0, szFileSettingsFilePath, -1, NULL, 0, NULL, NULL);
+
+						// Allocate a buffer for the converted string
+						char* charFilePath = new char[charCount];
+
+						// Perform the conversion
+						WideCharToMultiByte(CP_UTF8, 0, szFileSettingsFilePath, -1, charFilePath, charCount, NULL, NULL);
+
+
+						if (!writeSettingsToFile(charFilePath, setSettings)) //Writing AR Settings
+						{
+							throw std::invalid_argument("Failed to write settings to file");
+						}
+
+						// Now you can use charFilePath for further processing or saving data to the selected file
+						// Don't forget to delete[] charFilePath when done using it to avoid memory leaks
+						delete[] charFilePath;
+					}
 				}
 			}
 		}
 		else {
 			if (ImGui::Button("Write Settings to AR Application and ESP32")) {
-				if (ESP_connected == false)
-				{
-					MessageBox(NULL, L"Connect ESP32 or Enable Virtual Only Simulation!", L"Warning", MB_OK | MB_ICONWARNING); //Alert trying to write to ESP when not connected.
-				}
-				else
-				{
-					if (!writeSettingsToESP32(comPortList[selectedComPortIndex].c_str(), virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Write settings to ESP32
-					{
-						MessageBox(NULL, L"Could not write data to ESP32, please try again", L"Warning", MB_OK | MB_ICONWARNING); //Alert when writing to ESP failed
-					}
 
-					if (!writeSettingsToFile("This is an example path for now", virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Writing AR Settings
+				populateSettings(); //Refresh the Settigns
+
+				if (PCB_FileLoaded == false) {
+					MessageBox(NULL, L"Load a PCB File before attempting to Write Settings", L"Warning", MB_OK | MB_ICONWARNING); //Alert trying to write to ESP when not connected
+				}
+				else {
+					if (ESP_connected == false)
 					{
-						throw std::invalid_argument("Failed to write settings to file"); //Throwing exception here as likely to be more severe bug if cannot write to file
+						MessageBox(NULL, L"Connect ESP32 or Enable Virtual Only Simulation!", L"Warning", MB_OK | MB_ICONWARNING); //Alert trying to write to ESP when not connected.
+					}
+					else
+					{
+						if (!writeSettingsToESP32(comPortList[selectedComPortIndex].c_str(), virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Write settings to ESP32
+						{
+							MessageBox(NULL, L"Could not write data to ESP32, please try again", L"Warning", MB_OK | MB_ICONWARNING); //Alert when writing to ESP failed
+						}
+
+						if (!writeSettingsToFile("C:\\Users\\jrhol\\Desktop\\settings.txt", setSettings)) //Writing AR Settings
+						{
+							throw std::invalid_argument("Failed to write settings to file"); //Throwing exception here as likely to be more severe bug if cannot write to file
+						}
 					}
 				}
 			}
@@ -331,4 +424,17 @@ void runSettingsWindow()
 
 	glutSwapBuffers();
 	glutTimerFunc(16.6, timerCB, 16.6); // draw every 16.6 ms = 60FPS 
+}
+
+
+void populateSettings()
+{
+	setSettings.setVirtualOnlySimulation(virtual_only_simulation);
+	setSettings.setInputVoltage(inputVoltage);
+	setSettings.setSelectedTestPoint(selectedTestPoint);
+	setSettings.setSelectedWaveForm(selectedWaveform);
+	setSettings.setSimulationTime(simulationTime);
+	setSettings.setTimeStep(timeStep);
+	setSettings.setStartTime(startTime);
+	setSettings.setEndTime(endTime);
 }

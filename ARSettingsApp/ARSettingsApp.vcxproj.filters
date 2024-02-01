@@ -84,6 +84,9 @@
     <ClCompile Include="SetESPSettingsSource.cpp">
       <Filter>Source Files\SETTINGSource</Filter>
     </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <Filter>Source Files\SETTINGSource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="IMGUI\imconfig.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files\SETTINGS</Filter>
     </ClInclude>
     <ClInclude Include="Headers\SetESPSettings.h">
+      <Filter>Header Files\SETTINGS</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Settings.h">
       <Filter>Header Files\SETTINGS</Filter>
     </ClInclude>
   </ItemGroup>

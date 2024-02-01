@@ -2,27 +2,25 @@
 
 
 
-bool writeSettingsToFile(std::string PCBFilePath, bool virtual_only_simulation, float inputVoltage, int selectedTestPoint, int selectedWaveForm, double simulationTime, double timeStep, double startTime, double endTime)
+bool writeSettingsToFile(std::string settingsFilePath, settings& settingsToWrite)
 {
-	std::string settingsPath = "C:\\Users\\jrhol\\OneDrive\\Documents\\University_Of_Nottingham\\EEE\\Year_4\\EEEE4008_Individual_Project\\Repos\\settings.txt";
-
 	// Create an output file stream
-	std::ofstream outputFile(settingsPath);
+	std::ofstream outputFile(settingsFilePath);
 
 	// Check if the file is successfully created
 	if (outputFile.is_open()) {
-		std::cout << "File created successfully: " << settingsPath << std::endl;
+		std::cout << "File created successfully: " << settingsFilePath << std::endl;
 
 		// You can add additional content to the file if needed
-		outputFile << PCBFilePath << "\n";
-		outputFile << "Virtual Only Simulation?:\t" << virtual_only_simulation << "\n";
-		outputFile << "Input Voltage:\t\t\t" << inputVoltage << "\n";
-		outputFile << "Selected Test Point:\t" << selectedTestPoint << "\n";
-		outputFile << "Selected Wave Form:\t\t" << selectedWaveForm << "\n";
-		outputFile << "Total Simulation Time:\t" << simulationTime << "\n";
-		outputFile << "Simulation Time Step:\t" << timeStep << "\n";
-		outputFile << "Simulation Start Time:\t" << startTime << "\n";
-		outputFile << "Simulation End Time:\t" << endTime << "\n";
+		outputFile << "File Path:" << settingsToWrite.getPCBFilePath() << "\n";
+		outputFile << "Virtual Only Simulation?:" << settingsToWrite.getVirtualOnlySimulation() << "\n";
+		outputFile << "Input Voltage:" << settingsToWrite.getInputVoltage() << "\n";
+		outputFile << "Selected Test Point:" << settingsToWrite.getSelectedTestPoint() << "\n";
+		outputFile << "Selected Wave Form:" << settingsToWrite.getSelectedWaveForm() << "\n";
+		outputFile << "Total Simulation Time:" << settingsToWrite.getSimulationTime() << "\n";
+		outputFile << "Simulation Time Step:" << settingsToWrite.getTimeStep() << "\n";
+		outputFile << "Simulation Start Time:" << settingsToWrite.getStartTime() << "\n";
+		outputFile << "Simulation End Time:" << settingsToWrite.getEndTime() << "\n";
 
 
 		// Close the file stream
@@ -31,7 +29,7 @@ bool writeSettingsToFile(std::string PCBFilePath, bool virtual_only_simulation, 
 	}
 
 	else {
-		std::cerr << "Error creating the AR settings file: " << settingsPath << std::endl;
+		std::cerr << "Error creating the AR settings file: " << settingsFilePath << std::endl;
 		return false;
 	}
 

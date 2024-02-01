@@ -152,12 +152,14 @@
     <ClCompile Include="IMGUI\imgui_widgets.cpp" />
     <ClCompile Include="SetARAppSettingsSource.cpp" />
     <ClCompile Include="SetESPSettingsSource.cpp" />
+    <ClCompile Include="Settings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\ComPortHandler.h" />
     <ClInclude Include="Headers\GUI.h" />
     <ClInclude Include="Headers\SetARAppSettings.h" />
     <ClInclude Include="Headers\SetESPSettings.h" />
+    <ClInclude Include="Headers\Settings.h" />
     <ClInclude Include="IMGUI\imconfig.h" />
     <ClInclude Include="IMGUI\imgui.h" />
     <ClInclude Include="IMGUI\imgui_impl_glut.h" />

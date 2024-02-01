@@ -8,6 +8,7 @@
 #include "ComPortHandler.h"
 #include "SetARAppSettings.h"
 #include "SetESPSettings.h"
+#include "Settings.h"
 
 //#include "PCB.h"
 
@@ -19,7 +20,7 @@
 #include <GL/glut.h>
 #include <Windows.h> //For System Handling
 
-
+extern settings setSettings;
 
 //********************************************************//
 //			Defning Structs for PCB Display Control
@@ -52,6 +53,8 @@ void runSettingsWindow();
 //Timer Callback to limit to 60FPS
 void timerCB(int millisec);
 
+//Function To populate settings object
+void populateSettings();
 
 void populateLayerOptions(); //Temp Populated Layers - To be replaced
 
