@@ -1,114 +1,152 @@
 #include "Headers/SetESPSettings.h"
 
-bool writeSettingsToESP32(std::string comPort, bool virtual_only_simulation, float inputVoltage, int selectedTestPoint, int selectedWaveForm, double simulationTime, double timeStep, double startTime, double endTime) {
-
-	//Struct for Data
-	struct DataPacket {
-		char charArray[10];
-		float inputVoltage;
-		int selectedWaveForm;
-		double simulationTime;
-		double timeStep;
-		double startTime;
-		double endTime;
-	};
-
+bool writeSettingsToESP32(settings& settingsToWrite) {
 
 	HANDLE hSerial;
 	DCB dcbSerialParams = { 0 };
-	COMMTIMEOUTS timeouts = { 0 };
+	COMMTIMEOUTS timeout = { 0 };
 
-	//Convert string
-	LPCWSTR comPortWide = std::wstring(comPort.begin(), comPort.end()).c_str();
+	std::wstring comPort = settingsToWrite.getComPort();
 
-	// Open COM port
-	hSerial = CreateFile(comPortWide, GENERIC_READ | GENERIC_WRITE, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	// Open the serial port
+	hSerial = CreateFile(
+		comPort.c_str(),
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
 
 	DWORD errMSG = GetLastError();
 
 	if (errMSG == 2)
 	{
 		std::cout << "Plug in the device first...." << std::endl;
-		return false;
+		return 1;
 	}
 
 	if (errMSG == 5)
 	{
 		std::cout << "Something else is using the com port..." << std::endl;
-		return false;
+		return 1;
 	}
 
-
-	if (hSerial == INVALID_HANDLE_VALUE) {
-		std::cerr << "Error opening COM port." << std::endl;
-		return false;
-	}
-
-	// Set parameters for the COM port
 	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
 
 	if (!GetCommState(hSerial, &dcbSerialParams)) {
-		std::cerr << "Error getting state." << std::endl;
+		std::cerr << "Error getting serial port state" << std::endl;
 		CloseHandle(hSerial);
-		return false;
+		return 1;
 	}
 
-	dcbSerialParams.BaudRate = CBR_115200; // Set your baud rate
+	dcbSerialParams.BaudRate = 9600;
 	dcbSerialParams.ByteSize = 8;
-	dcbSerialParams.StopBits = ONESTOPBIT;
-	dcbSerialParams.Parity = NOPARITY;
+	dcbSerialParams.StopBits = TWOSTOPBITS;
+	dcbSerialParams.Parity = EVENPARITY;
 	dcbSerialParams.fRtsControl = RTS_CONTROL_DISABLE;
 
 	if (!SetCommState(hSerial, &dcbSerialParams)) {
-		std::cerr << "Error setting serial port state." << std::endl;
+		std::cerr << "Error setting serial port state" << std::endl;
 		CloseHandle(hSerial);
-		return false;
+		return 1;
 	}
 
-	// Set timeouts
-	timeouts.ReadIntervalTimeout = 50;
-	timeouts.ReadTotalTimeoutConstant = 50;
-	timeouts.ReadTotalTimeoutMultiplier = 10;
-	timeouts.WriteTotalTimeoutConstant = 50;
-	timeouts.WriteTotalTimeoutMultiplier = 10;
-
-	if (!SetCommTimeouts(hSerial, &timeouts)) {
-		std::cerr << "Error setting timeouts." << std::endl;
+	if (!PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR)) {
+		std::cerr << "Error purging the serial port. Error code: " << GetLastError() << std::endl;
 		CloseHandle(hSerial);
-		return false;
+		return 1;
 	}
 
-	// Send doubles and ints using binary protocol
-	DataPacket packet;
-	// Populate char array
-	strcpy_s(packet.charArray, "dataWrite");  // Make sure the string length is within the array size
-	packet.inputVoltage = inputVoltage;
-	packet.selectedWaveForm = selectedWaveForm;
-	packet.simulationTime = simulationTime;
-	packet.timeStep = timeStep;
-	packet.startTime = startTime;
-	packet.endTime = endTime;
+	//Set serial port timeouts
+	timeout.ReadIntervalTimeout = 60;
+	timeout.ReadTotalTimeoutConstant = 60;
+	timeout.ReadTotalTimeoutMultiplier = 15;
+	//timeout.WriteTotalTimeoutConstant = 60;
+	//timeout.WriteTotalTimeoutMultiplier = 8;
 
-	// Send binary data
+	if (!SetCommTimeouts(hSerial, &timeout)) {
+		std::cerr << "Error setting serial port time-outs." << std::endl;
+		CloseHandle(hSerial);
+		return 1;
+	}
+
+	std::string output;
+
+	output += "\n";
+	output += "Input Voltage:";
+	output += std::to_string(settingsToWrite.getInputVoltage());
+	output += "\n";
+	output += "Selected Test Point:";
+	output += std::to_string(settingsToWrite.getSelectedTestPoint());
+	output += "\n";
+	output += "Selected Wave Form:";
+	output += std::to_string(settingsToWrite.getSelectedWaveForm());
+	output += "\n";
+	output += "Total Simulation Time:";
+	output += std::to_string(settingsToWrite.getSimulationTime());
+	output += "\n";
+	output += "Simulation Time Step:";
+	output += std::to_string(settingsToWrite.getTimeStep());
+	output += "\n";
+	output += "Simulation Start Time:";
+	output += std::to_string(settingsToWrite.getStartTime());
+	output += "\n";
+	output += "Simulation End Time:";
+	output += std::to_string(settingsToWrite.getEndTime());
+	output += "\n";
+
 	DWORD bytesWritten;
-	if (!WriteFile(hSerial, &packet, sizeof(DataPacket), &bytesWritten, NULL)) {
+	if (!WriteFile(hSerial, output.c_str(), output.length(), &bytesWritten, NULL)) { //TODO: Need To change Something here todo with size
 		std::cerr << "Error writing to serial port." << std::endl;
+		CloseHandle(hSerial);
+		return 1;
+	}
+
+	//// Remove the trailing '\n' if it exists
+	//if (!output.empty() && output.back() == '\n') {
+	//	output.pop_back();
+	//}
+	std::cout << "Sent: " << output << ", Bytes written: " << bytesWritten << std::endl;
+
+	// Receive data from the serial port
+	char buffer[64]; // Adjust the buffer as needed
+	DWORD bytesRead;
+
+	// Clear the buffer before reading
+	ZeroMemory(buffer, sizeof(buffer));
+
+	if (ReadFile(hSerial, buffer, sizeof(buffer), &bytesRead, NULL)) {
+		if (bytesRead > 0) {
+
+			std::cout << "Bytes read: " << bytesRead << "	Received: " << buffer << std::endl;
+		}
 	}
 	else {
-		std::cout << "Data sent successfully." << std::endl;
+		std::cerr << "Error reading from serial port. Error code: " << GetLastError() << std::endl;
+		CloseHandle(hSerial);
+		return 1;
 	}
 
-	//Wait until we get response from ESP
-	while (1)
+	FlushFileBuffers(hSerial);
+
+	if (strstr(buffer, "True") != nullptr)
 	{
+		// Close the serial port
+		CloseHandle(hSerial);
 
+		//Need to Add Error Handling from the ESP
+		return true;
+	}
+	else {
+		// Close the serial port
+		CloseHandle(hSerial);
+
+		//Need to Add Error Handling from the ESP
+		return false;
 	}
 
-	// Close COM port
-	CloseHandle(hSerial);
 
-
-	//Need to Add Error Handling from the ESP
-	return true;
 
 }

@@ -384,8 +384,6 @@ void runSettingsWindow()
 		else {
 			if (ImGui::Button("Write Settings to AR Application and ESP32")) {
 
-				populateSettings(); //Refresh the Settigns
-
 				if (PCB_FileLoaded == false) {
 					MessageBox(NULL, L"Load a PCB File before attempting to Write Settings", L"Warning", MB_OK | MB_ICONWARNING); //Alert trying to write to ESP when not connected
 				}
@@ -396,14 +394,67 @@ void runSettingsWindow()
 					}
 					else
 					{
-						if (!writeSettingsToESP32(comPortList[selectedComPortIndex].c_str(), virtual_only_simulation, inputVoltage, selectedTestPoint, selectedWaveform, simulationTime, timeStep, startTime, endTime)) //Write settings to ESP32
-						{
-							MessageBox(NULL, L"Could not write data to ESP32, please try again", L"Warning", MB_OK | MB_ICONWARNING); //Alert when writing to ESP failed
-						}
+						populateSettings(); //Refresh the Settigns
 
-						if (!writeSettingsToFile("C:\\Users\\jrhol\\Desktop\\settings.txt", setSettings)) //Writing AR Settings
+						// Code for Saving File
+						OPENFILENAME ofn;
+						TCHAR szFileSettingsFilePath[MAX_PATH] = { 0 };
+
+						// Initialize OPENFILENAME
+						ZeroMemory(&ofn, sizeof(ofn));
+						ofn.lStructSize = sizeof(ofn);
+						ofn.hwndOwner = NULL;
+						ofn.lpstrFile = szFileSettingsFilePath;
+						ofn.nMaxFile = sizeof(szFileSettingsFilePath);
+						ofn.lpstrFilter = L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0"; // Filter to .txt files only
+						ofn.nFilterIndex = 1;
+						ofn.lpstrFileTitle = NULL;
+						ofn.nMaxFileTitle = 0;
+						ofn.lpstrInitialDir = NULL;
+						ofn.Flags = OFN_OVERWRITEPROMPT; // Use OFN_OVERWRITEPROMPT for save dialog
+
+						if (GetSaveFileName(&ofn) == TRUE)
 						{
-							throw std::invalid_argument("Failed to write settings to file"); //Throwing exception here as likely to be more severe bug if cannot write to file
+							// Ensure the file has a .txt extension
+							size_t fileNameLength = wcslen(szFileSettingsFilePath);
+
+							// Check if the filename already has an extension
+							if (fileNameLength == 0 || (szFileSettingsFilePath[fileNameLength - 1] != L'.' && _wcsicmp(szFileSettingsFilePath + fileNameLength - 4, L".txt") != 0))
+							{
+								// If the filename doesn't have an extension or has an extension other than .txt, add .txt
+								wcscat_s(szFileSettingsFilePath, _countof(szFileSettingsFilePath), L".txt");
+							}
+
+							// The user selected a file or entered a new filename,
+							// and the file path is in szFileName
+							// You can use szFileName for further processing
+							MessageBox(NULL, szFileSettingsFilePath, L"File Selected", MB_OK);
+
+
+							// Converting Tchar to Char
+							// Calculate the size of the buffer needed
+							int charCount = WideCharToMultiByte(CP_UTF8, 0, szFileSettingsFilePath, -1, NULL, 0, NULL, NULL);
+
+							// Allocate a buffer for the converted string
+							char* charFilePath = new char[charCount];
+
+							// Perform the conversion
+							WideCharToMultiByte(CP_UTF8, 0, szFileSettingsFilePath, -1, charFilePath, charCount, NULL, NULL);
+
+
+							if (!writeSettingsToESP32(setSettings)) //Write settings to ESP32
+							{
+								MessageBox(NULL, L"Could not write data to ESP32, please try again", L"Warning", MB_OK | MB_ICONWARNING); //Alert when writing to ESP failed
+							}
+
+							if (!writeSettingsToFile(charFilePath, setSettings)) //Writing AR Settings
+							{
+								throw std::invalid_argument("Failed to write settings to file"); //Throwing exception here as likely to be more severe bug if cannot write to file
+							}
+
+							// Now you can use charFilePath for further processing or saving data to the selected file
+							// Don't forget to delete[] charFilePath when done using it to avoid memory leaks
+							delete[] charFilePath;
 						}
 					}
 				}
@@ -437,4 +488,11 @@ void populateSettings()
 	setSettings.setTimeStep(timeStep);
 	setSettings.setStartTime(startTime);
 	setSettings.setEndTime(endTime);
+
+	if (virtual_only_simulation == false) {
+		// Convert the string to wstring
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		std::wstring wComport = converter.from_bytes(comPortList[selectedComPortIndex]);
+		setSettings.setComPort(wComport);
+	}
 }

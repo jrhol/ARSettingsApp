@@ -20,6 +20,8 @@
 #include <GL/glut.h>
 #include <Windows.h> //For System Handling
 
+#include <codecvt>
+
 extern settings setSettings;
 
 //********************************************************//

@@ -13,6 +13,7 @@ bool writeSettingsToFile(std::string settingsFilePath, settings& settingsToWrite
 
 		// You can add additional content to the file if needed
 		outputFile << "File Path:" << settingsToWrite.getPCBFilePath() << "\n";
+		outputFile << "Com Port:" << settingsToWrite.getComPort().c_str() << "\n";
 		outputFile << "Virtual Only Simulation?:" << settingsToWrite.getVirtualOnlySimulation() << "\n";
 		outputFile << "Input Voltage:" << settingsToWrite.getInputVoltage() << "\n";
 		outputFile << "Selected Test Point:" << settingsToWrite.getSelectedTestPoint() << "\n";

@@ -5,7 +5,8 @@
 #include <sstream>
 #include <iostream>
 #include <windows.h>
+#include "Settings.h"
 
-bool writeSettingsToESP32(std::string comPort, bool virtual_only_simulation, float inputVoltage, int selectedTestPoint, int selectedWaveForm, double simulationTime, double timeStep, double startTime, double endTime);
+bool writeSettingsToESP32(settings& settingsToWrite);
 
 #endif // !SetESP_def

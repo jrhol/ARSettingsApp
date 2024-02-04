@@ -8,10 +8,10 @@ simulationTime(0.0), timeStep(0.0), startTime(0.0), endTime(0.0)
 	// Default constructor
 }
 
-settings::settings(const std::string& filePath, bool virtualOnly, float voltage,
+settings::settings(const std::string& filePath, const std::wstring& com, bool virtualOnly, float voltage,
 	int testPoint, int waveForm, double simTime, double step,
 	double start, double end)
-	: PCBFilePath(filePath), virtual_only_simulation(virtualOnly),
+	: PCBFilePath(filePath), comPort(com), virtual_only_simulation(virtualOnly),
 	inputVoltage(voltage), selectedTestPoint(testPoint),
 	selectedWaveForm(waveForm), simulationTime(simTime),
 	timeStep(step), startTime(start), endTime(end)
@@ -55,6 +55,7 @@ settings::~settings()
 
 // Getters
 std::string settings::getPCBFilePath() const { return PCBFilePath; }
+std::wstring settings::getComPort() const { return comPort; }
 bool settings::getVirtualOnlySimulation() const { return virtual_only_simulation; }
 float settings::getInputVoltage() const { return inputVoltage; }
 int settings::getSelectedTestPoint() const { return selectedTestPoint; }
@@ -66,6 +67,7 @@ double settings::getEndTime() const { return endTime; }
 
 // Setters
 void settings::setPCBFilePath(const std::string& path) { PCBFilePath = path; }
+void settings::setComPort(const std::wstring& com) { comPort = com; }
 void settings::setVirtualOnlySimulation(bool virtualOnly) { virtual_only_simulation = virtualOnly; }
 void settings::setInputVoltage(float voltage) { inputVoltage = voltage; }
 void settings::setSelectedTestPoint(int testPoint) { selectedTestPoint = testPoint; }
